@@ -16,6 +16,9 @@ from app.db.models import (
     Lesson,
     LessonCompletion,
     Module,
+    Post,
+    PostComment,
+    PostLike,
 )
 
 config = context.config
