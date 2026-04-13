@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.db.models.assessment import AssessmentAttempt
 from app.db.models.progress import Enrollment, LessonCompletion
+from app.db.models.social import Post
+from app.db.models.user import User
 from app.repositories.progress_repository import ProgressRepository
-from app.services import state
 
 
 class DashboardRepository:
@@ -32,6 +33,8 @@ class DashboardRepository:
             .limit(5)
         ).scalars().all()
 
+        post_count = self.db.execute(select(func.count(Post.id))).scalar_one()
+
         recent_scores = [
             {"attempt_id": a.id, "score": a.score, "max_score": a.max_score}
             for a in attempts
@@ -42,7 +45,7 @@ class DashboardRepository:
             "avg_progress_percent": avg_progress,
             "recent_activity": [
                 {"type": "enrollments", "count": len(enrolled_course_ids)},
-                {"type": "posts", "count": len(state.posts)},
+                {"type": "posts", "count": post_count},
             ],
             "recent_scores": recent_scores,
         }
@@ -66,3 +69,30 @@ class AdminRepository:
             "enrolled_courses": enrolled,
             "completed_lessons": completed_lessons,
         }
+
+    def list_user_progress(self, page: int, limit: int, role: str | None = None) -> dict:
+        base = select(User)
+        if role:
+            base = base.where(User.role == role)
+
+        total_stmt = select(func.count()).select_from(base.subquery())
+        total = self.db.execute(total_stmt).scalar_one()
+
+        offset = (page - 1) * limit
+        users = self.db.execute(base.order_by(User.created_at.desc()).offset(offset).limit(limit)).scalars().all()
+
+        items = []
+        for user in users:
+            progress = self.user_progress(user.id)
+            items.append(
+                {
+                    "user_id": user.id,
+                    "name": user.name,
+                    "email": user.email,
+                    "role": user.role,
+                    "enrolled_courses": progress["enrolled_courses"],
+                    "completed_lessons": progress["completed_lessons"],
+                }
+            )
+
+        return {"items": items, "page": page, "limit": limit, "total": total}

@@ -28,10 +28,18 @@ class CourseRepository:
         stmt = select(Course).where(Course.id == course_id)
         return self.db.execute(stmt).scalar_one_or_none()
 
-    def list_courses(self, page: int, limit: int) -> tuple[list[Course], int]:
-        total = self.db.execute(select(func.count(Course.id))).scalar_one()
+    def list_courses(self, page: int, limit: int, search: str | None = None, level: str | None = None) -> tuple[list[Course], int]:
+        base = select(Course)
+        if search:
+            base = base.where(Course.title.ilike(f"%{search}%"))
+        if level:
+            base = base.where(Course.level == level)
+
+        total_stmt = select(func.count()).select_from(base.subquery())
+        total = self.db.execute(total_stmt).scalar_one()
+
         offset = (page - 1) * limit
-        stmt = select(Course).order_by(Course.created_at.desc()).offset(offset).limit(limit)
+        stmt = base.order_by(Course.created_at.desc()).offset(offset).limit(limit)
         items = self.db.execute(stmt).scalars().all()
         return items, total
 

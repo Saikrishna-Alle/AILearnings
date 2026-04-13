@@ -8,6 +8,7 @@ from app.db.base import Base
 from app.db.models import (
     Assessment,
     AssessmentAttempt,
+    AuthToken,
     Certificate,
     Course,
     Enrollment,
@@ -19,6 +20,7 @@ from app.db.models import (
     Post,
     PostComment,
     PostLike,
+    User,
 )
 
 config = context.config

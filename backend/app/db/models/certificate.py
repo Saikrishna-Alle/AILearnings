@@ -1,4 +1,5 @@
-﻿from datetime import datetime
+﻿import json
+from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,3 +16,6 @@ class Certificate(Base):
     status: Mapped[str] = mapped_column(String(32), default="generated")
     preview_json: Mapped[str] = mapped_column(Text)
     generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    def preview(self) -> dict:
+        return json.loads(self.preview_json)

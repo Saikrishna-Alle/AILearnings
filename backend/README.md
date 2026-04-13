@@ -1,6 +1,6 @@
-﻿# Backend Starter (Phase 1)
+﻿# Backend Starter
 
-## Run
+## Run Locally
 
 ```bash
 cd backend
@@ -9,23 +9,26 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-## Database Defaults
+## Auth (Seeded)
+- Admin: `admin@ail.dev` / `admin123`
+- Student: `student@ail.dev` / `student123`
+
+## DB Defaults
 - Host: `localhost`
 - Port: `5432`
 - User: `root`
 - Password: `root`
 - Database: `ail`
 
-Connection string (default):
+Default connection:
 
 ```bash
 postgresql+psycopg://root:root@localhost:5432/ail
 ```
 
-You can override with `DATABASE_URL`.
+Override with `DATABASE_URL`.
 
-## Notes
-- API is versioned at `/api/v1`.
-- Dummy user context defaults to `demo_user_1`.
-- PostgreSQL-backed now: courses, modules, lessons, enrollments, lesson completion, learning paths, assessments, attempts, dashboard progress, admin progress, certificates, social.
-- Remaining in-memory: none of the core MVP domains.
+## Coverage
+- All core MVP domains are PostgreSQL-backed.
+- Role-based auth is enabled (`student`, `admin`).
+- Admin routes are role-guarded.

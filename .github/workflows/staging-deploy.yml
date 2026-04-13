@@ -1,0 +1,19 @@
+﻿name: Staging Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger staging deploy webhook
+        env:
+          STAGING_DEPLOY_HOOK_URL: ${{ secrets.STAGING_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$STAGING_DEPLOY_HOOK_URL" ]; then
+            echo "STAGING_DEPLOY_HOOK_URL is not configured."
+            exit 1
+          fi
+          curl -X POST "$STAGING_DEPLOY_HOOK_URL"

@@ -1,8 +1,9 @@
 ﻿from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_db
+from app.core.deps import get_current_user, get_db, require_role
 from app.core.errors import AppError
+from app.db.models.user import User
 from app.repositories.common import to_iso
 from app.repositories.course_repository import CourseRepository
 from app.schemas.course import CourseCreate, CourseUpdate, LessonCreate, ModuleCreate
@@ -11,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/courses")
-def create_course(payload: CourseCreate, db: Session = Depends(get_db)):
+def create_course(payload: CourseCreate, db: Session = Depends(get_db), _: User = Depends(require_role("admin"))):
     repo = CourseRepository(db)
     course = repo.create_course(payload)
     return {
@@ -25,9 +26,16 @@ def create_course(payload: CourseCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/courses")
-def get_courses(page: int = Query(default=1, ge=1), limit: int = Query(default=20, ge=1, le=100), db: Session = Depends(get_db)):
+def get_courses(
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=100),
+    search: str | None = Query(default=None),
+    level: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
     repo = CourseRepository(db)
-    items, total = repo.list_courses(page=page, limit=limit)
+    items, total = repo.list_courses(page=page, limit=limit, search=search, level=level)
     response_items = [
         {
             "id": item.id,
@@ -43,7 +51,7 @@ def get_courses(page: int = Query(default=1, ge=1), limit: int = Query(default=2
 
 
 @router.get("/courses/{course_id}")
-def get_course(course_id: str, db: Session = Depends(get_db)):
+def get_course(course_id: str, db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     repo = CourseRepository(db)
     course = repo.get_course(course_id)
     if not course:
@@ -59,7 +67,7 @@ def get_course(course_id: str, db: Session = Depends(get_db)):
 
 
 @router.put("/courses/{course_id}")
-def update_course(course_id: str, payload: CourseUpdate, db: Session = Depends(get_db)):
+def update_course(course_id: str, payload: CourseUpdate, db: Session = Depends(get_db), _: User = Depends(require_role("admin"))):
     repo = CourseRepository(db)
     course = repo.get_course(course_id)
     if not course:
@@ -77,7 +85,7 @@ def update_course(course_id: str, payload: CourseUpdate, db: Session = Depends(g
 
 
 @router.delete("/courses/{course_id}")
-def delete_course(course_id: str, db: Session = Depends(get_db)):
+def delete_course(course_id: str, db: Session = Depends(get_db), _: User = Depends(require_role("admin"))):
     repo = CourseRepository(db)
     course = repo.get_course(course_id)
     if not course:
@@ -88,7 +96,7 @@ def delete_course(course_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/courses/{course_id}/modules")
-def create_module(course_id: str, payload: ModuleCreate, db: Session = Depends(get_db)):
+def create_module(course_id: str, payload: ModuleCreate, db: Session = Depends(get_db), _: User = Depends(require_role("admin"))):
     repo = CourseRepository(db)
     course = repo.get_course(course_id)
     if not course:
@@ -103,7 +111,7 @@ def create_module(course_id: str, payload: ModuleCreate, db: Session = Depends(g
 
 
 @router.post("/modules/{module_id}/lessons")
-def create_lesson(module_id: str, payload: LessonCreate, db: Session = Depends(get_db)):
+def create_lesson(module_id: str, payload: LessonCreate, db: Session = Depends(get_db), _: User = Depends(require_role("admin"))):
     repo = CourseRepository(db)
     module = repo.get_module(module_id)
     if not module:

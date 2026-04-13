@@ -4,6 +4,7 @@ from app.db.models.course import Course, Lesson, Module
 from app.db.models.learning_path import LearningPath, LearningPathCourse
 from app.db.models.progress import Enrollment, LessonCompletion
 from app.db.models.social import Post, PostComment, PostLike
+from app.db.models.user import AuthToken, User
 
 __all__ = [
     "Course",
@@ -19,4 +20,6 @@ __all__ = [
     "Post",
     "PostLike",
     "PostComment",
+    "User",
+    "AuthToken",
 ]

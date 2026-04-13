@@ -1,4 +1,4 @@
-﻿# Frontend Starter (Phase 1)
+﻿# Frontend Starter
 
 ## Run
 
@@ -15,7 +15,10 @@ Create `.env.local`:
 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api/v1
 ```
 
+## Login
+- Admin: `admin@ail.dev` / `admin123`
+- Student: `student@ail.dev` / `student123`
+
 ## Notes
-- App Router pages map directly to MVP domains.
-- Data is server-fetched from FastAPI.
-- Dummy user session is stored under `src/mocks/session.ts`.
+- Full API-connected pages for dashboard, courses, learning paths, assessments, certificates, social, and admin.
+- Includes loading/error states, simple form validation, pagination/filter controls.

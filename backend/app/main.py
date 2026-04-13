@@ -1,12 +1,20 @@
 ﻿from fastapi import FastAPI
 
-from app.api.v1 import admin, assessments, certificates, courses, dashboard, learning_paths, progress, social
+from app.api.v1 import admin, assessments, auth, certificates, courses, dashboard, learning_paths, progress, social
 from app.core.errors import register_exception_handlers
+from app.db.bootstrap import ensure_seed_users
 
 app = FastAPI(title="AI Skill Platform API", version="0.1.0")
 
 register_exception_handlers(app)
 
+
+@app.on_event("startup")
+def on_startup() -> None:
+    ensure_seed_users()
+
+
+app.include_router(auth.router, prefix="/api/v1", tags=["Auth"])
 app.include_router(courses.router, prefix="/api/v1", tags=["Courses"])
 app.include_router(progress.router, prefix="/api/v1", tags=["Progress"])
 app.include_router(learning_paths.router, prefix="/api/v1", tags=["Learning Paths"])

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "AI Skill Platform",
-  description: "Phase 1 MVP starter",
+  description: "MVP",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
