@@ -1,4 +1,5 @@
-﻿from app.db.models.course import Course, Lesson, Module
+﻿from app.db.models.assessment import Assessment, AssessmentAttempt
+from app.db.models.course import Course, Lesson, Module
 from app.db.models.progress import Enrollment, LessonCompletion
 
 __all__ = [
@@ -7,4 +8,6 @@ __all__ = [
     "Lesson",
     "Enrollment",
     "LessonCompletion",
+    "Assessment",
+    "AssessmentAttempt",
 ]

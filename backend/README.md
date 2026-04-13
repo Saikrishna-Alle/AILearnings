@@ -27,5 +27,5 @@ You can override with `DATABASE_URL`.
 ## Notes
 - API is versioned at `/api/v1`.
 - Dummy user context defaults to `demo_user_1`.
-- `courses` + `progress` APIs now persist to PostgreSQL.
-- Other modules remain in-memory for rapid MVP iteration and will be migrated next.
+- PostgreSQL-backed now: courses, modules, lessons, enrollments, lesson completion, assessments, attempts, dashboard progress, admin progress.
+- Still in-memory: learning paths, social feed/posts, certificates.

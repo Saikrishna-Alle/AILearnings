@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
-from app.db.models import Course, Enrollment, Lesson, LessonCompletion, Module
+from app.db.models import Assessment, AssessmentAttempt, Course, Enrollment, Lesson, LessonCompletion, Module
 
 config = context.config
 
