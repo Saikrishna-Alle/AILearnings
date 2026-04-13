@@ -1,45 +1,48 @@
-﻿import uuid
+﻿import json
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
+from app.core.deps import get_db
 from app.core.errors import AppError
+from app.repositories.certificate_repository import CertificateRepository
 from app.schemas.certificate import CertificateGenerate
-from app.services import state
 
 router = APIRouter()
 
 
 @router.post("/certificates/generate")
-def generate_certificate(payload: CertificateGenerate):
-    if payload.course_id not in state.courses:
-        raise AppError("Course not found", code="COURSE_NOT_FOUND", status_code=404)
-    if (payload.user_id, payload.course_id) not in state.enrollments:
-        raise AppError("User not enrolled in course", code="ENROLLMENT_NOT_FOUND", status_code=400)
+def generate_certificate(payload: CertificateGenerate, db: Session = Depends(get_db)):
+    repo = CertificateRepository(db)
 
-    cert_id = f"CERT-{uuid.uuid4().hex[:10].upper()}"
-    certificate = {
-        "certificate_id": cert_id,
-        "user_id": payload.user_id,
-        "course_id": payload.course_id,
-        "generated_at": state.now_iso(),
-        "status": "generated",
-        "preview": {
-            "title": "Course Completion Certificate",
-            "recipient": payload.user_id,
-            "course": state.courses[payload.course_id]["title"],
-        },
-    }
-    state.certificates[cert_id] = certificate
+    try:
+        certificate = repo.generate(user_id=payload.user_id, course_id=payload.course_id)
+    except ValueError as exc:
+        if str(exc) == "COURSE_NOT_FOUND":
+            raise AppError("Course not found", code="COURSE_NOT_FOUND", status_code=404) from exc
+        if str(exc) == "COURSE_NOT_COMPLETED":
+            raise AppError("Course completion validation failed", code="COURSE_NOT_COMPLETED", status_code=400) from exc
+        raise
+
     return {
-        "certificate_id": cert_id,
-        "status": "generated",
-        "preview": certificate["preview"],
+        "certificate_id": certificate.id,
+        "status": certificate.status,
+        "preview": json.loads(certificate.preview_json),
     }
 
 
 @router.get("/certificates/{certificate_id}/preview")
-def certificate_preview(certificate_id: str):
-    certificate = state.certificates.get(certificate_id)
+def certificate_preview(certificate_id: str, db: Session = Depends(get_db)):
+    repo = CertificateRepository(db)
+    certificate = repo.get_certificate(certificate_id)
     if not certificate:
         raise AppError("Certificate not found", code="CERT_NOT_FOUND", status_code=404)
-    return certificate
+
+    return {
+        "certificate_id": certificate.id,
+        "user_id": certificate.user_id,
+        "course_id": certificate.course_id,
+        "generated_at": certificate.generated_at.isoformat() + "Z",
+        "status": certificate.status,
+        "preview": json.loads(certificate.preview_json),
+    }

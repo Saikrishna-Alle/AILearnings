@@ -8,6 +8,7 @@ from app.db.base import Base
 from app.db.models import (
     Assessment,
     AssessmentAttempt,
+    Certificate,
     Course,
     Enrollment,
     LearningPath,

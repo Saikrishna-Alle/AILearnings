@@ -27,5 +27,5 @@ You can override with `DATABASE_URL`.
 ## Notes
 - API is versioned at `/api/v1`.
 - Dummy user context defaults to `demo_user_1`.
-- PostgreSQL-backed now: courses, modules, lessons, enrollments, lesson completion, learning paths, assessments, attempts, dashboard progress, admin progress.
-- Still in-memory: social feed/posts, certificates.
+- PostgreSQL-backed now: courses, modules, lessons, enrollments, lesson completion, learning paths, assessments, attempts, dashboard progress, admin progress, certificates.
+- Still in-memory: social feed/posts.

@@ -1,4 +1,5 @@
 ﻿from app.db.models.assessment import Assessment, AssessmentAttempt
+from app.db.models.certificate import Certificate
 from app.db.models.course import Course, Lesson, Module
 from app.db.models.learning_path import LearningPath, LearningPathCourse
 from app.db.models.progress import Enrollment, LessonCompletion
@@ -13,4 +14,5 @@ __all__ = [
     "AssessmentAttempt",
     "LearningPath",
     "LearningPathCourse",
+    "Certificate",
 ]
